@@ -1,0 +1,27 @@
+.tabbar {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	background-color: #72633a;
+    height: 100rpx;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    
+    image {
+        width: 40rpx;
+        height: 40rpx;
+    }
+    .tabbar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 24rpx;
+        color: #fff;
+    }
+}
+
+
+
+

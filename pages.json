@@ -1,0 +1,68 @@
+	{
+	"pages": [ 
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "蚁国助手",
+				"navigationBarBackgroundColor": "#78673c",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/strategy/index",
+			"style": {
+				"navigationBarTitleText": "探索",
+				"navigationBarBackgroundColor": "#78673c",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "pages/my/index",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#78673c",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
+			"path": "package-evolve/pages/index/index",
+			"style": {
+				"navigationBarTitleText": "进化",
+				"navigationBarBackgroundColor": "#78673c",
+				"navigationBarTextStyle": "white"
+			}
+		}			
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {},
+	"tabBar": {
+		"color": "#78673c",
+		"selectedColor": "#78673c",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"text": "首页",
+				"pagePath": "pages/index/index",
+				"iconPath": "static/images/tabbar/home.png",
+				"selectedIconPath": "static/images/tabbar/home.png"
+			},
+			{
+				"text": "探索",
+				"pagePath": "pages/strategy/index",
+				"iconPath": "static/images/tabbar/explore.png",
+				"selectedIconPath": "static/images/tabbar/explore.png"
+			},
+			{
+				"text": "我的",
+				"pagePath": "pages/my/index",
+				"iconPath": "static/images/tabbar/my.png",
+				"selectedIconPath": "static/images/tabbar/my.png"
+			}
+		]
+	}
+}
