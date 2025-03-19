@@ -5,7 +5,7 @@ if (!Math) {
   "./pages/index/index.js";
   "./pages/strategy/index.js";
   "./pages/my/index.js";
-  "./package-evolve/pages/index/index.js";
+  "./package-evolve/pages/evolve-index/index.js";
 }
 const _sfc_main = {
   onLaunch: function() {

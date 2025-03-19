@@ -2,7 +2,7 @@ const menuCard = [
     {
         title: '进化',
         image: 'evolve.png',
-        path: '/package-evolve/pages/index'
+        path: '/package-evolve/pages/evolve-index/index'
     },
     {
         title: '变异菌丛',

@@ -3,7 +3,7 @@
     "pages/index/index",
     "pages/strategy/index",
     "pages/my/index",
-    "package-evolve/pages/index/index"
+    "package-evolve/pages/evolve-index/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

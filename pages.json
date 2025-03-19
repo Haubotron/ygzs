@@ -25,7 +25,7 @@
 			}
 		},
 		{
-			"path": "package-evolve/pages/index/index",
+			"path": "package-evolve/pages/evolve-index/index",
 			"style": {
 				"navigationBarTitleText": "进化",
 				"navigationBarBackgroundColor": "#78673c",
