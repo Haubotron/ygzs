@@ -87,46 +87,15 @@ const _sfc_main = {
     const saveChanges = () => {
       if (!editMode.value)
         return;
-      let totalCost = 0;
-      currentTree.value.skills.forEach((skill) => {
-        const originalSkill = originalTrees[currentTreeKey.value].skills.find((s) => s.name === skill.name && s.level === skill.level);
-        if (originalSkill && skill.currentLevel > originalSkill.currentLevel) {
-          for (let i = originalSkill.currentLevel; i < skill.currentLevel; i++) {
-            totalCost += skill.resourcesPerLevel[i];
-          }
-        }
+      initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+      originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+      pendingChanges[currentTreeKey.value] = [];
+      editMode.value = false;
+      common_vendor.index.showToast({
+        title: "保存成功，初始设置不消耗鱼骨头",
+        icon: "none",
+        duration: 2e3
       });
-      if (totalCost > treeResources[currentTreeKey.value]) {
-        common_vendor.index.showModal({
-          title: "资源不足",
-          content: `需要 ${totalCost} 鱼骨头，当前只有 ${treeResources[currentTreeKey.value]} 鱼骨头。是否继续保存？`,
-          success: (res) => {
-            if (res.confirm) {
-              treeResources[currentTreeKey.value] -= totalCost;
-              initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-              originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-              pendingChanges[currentTreeKey.value] = [];
-              editMode.value = false;
-              common_vendor.index.showToast({
-                title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-                icon: "none",
-                duration: 2e3
-              });
-            }
-          }
-        });
-      } else {
-        treeResources[currentTreeKey.value] -= totalCost;
-        initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-        originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-        pendingChanges[currentTreeKey.value] = [];
-        editMode.value = false;
-        common_vendor.index.showToast({
-          title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-          icon: "none",
-          duration: 2e3
-        });
-      }
     };
     const getMaxTreeLevel = () => {
       let maxLevel2 = 0;

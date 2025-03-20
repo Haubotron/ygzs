@@ -285,58 +285,18 @@
   const saveChanges = () => {
 	if (!editMode.value) return;
 	
-	// 计算需要消耗的资源
-	let totalCost = 0;
+	// Update initial state without consuming resources
+	initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+	// Update original state
+	originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+	pendingChanges[currentTreeKey.value] = [];
+	editMode.value = false;
 	
-	currentTree.value.skills.forEach(skill => {
-	  const originalSkill = originalTrees[currentTreeKey.value].skills.find(s => s.name === skill.name && s.level === skill.level);
-	  if (originalSkill && skill.currentLevel > originalSkill.currentLevel) {
-		for (let i = originalSkill.currentLevel; i < skill.currentLevel; i++) {
-		  totalCost += skill.resourcesPerLevel[i];
-		}
-	  }
+	uni.showToast({
+	  title: '保存成功，初始设置不消耗鱼骨头',
+	  icon: 'none',
+	  duration: 2000
 	});
-	
-	// 检查资源是否足够
-	if (totalCost > treeResources[currentTreeKey.value]) {
-	  uni.showModal({
-		title: '资源不足',
-		content: `需要 ${totalCost} 鱼骨头，当前只有 ${treeResources[currentTreeKey.value]} 鱼骨头。是否继续保存？`,
-		success: (res) => {
-		  if (res.confirm) {
-			// 用户确认，扣除资源并保存
-			treeResources[currentTreeKey.value] -= totalCost;
-			// 更新初始状态
-			initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-			// 更新原始状态
-			originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-			pendingChanges[currentTreeKey.value] = [];
-			editMode.value = false;
-			
-			uni.showToast({
-			  title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-			  icon: 'none',
-			  duration: 2000
-			});
-		  }
-		}
-	  });
-	} else {
-	  // 资源足够，直接保存
-	  treeResources[currentTreeKey.value] -= totalCost;
-	  // 更新初始状态
-	  initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-	  // 更新原始状态
-	  originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-	  pendingChanges[currentTreeKey.value] = [];
-	  editMode.value = false;
-	  
-	  uni.showToast({
-		title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-		icon: 'none',
-		duration: 2000
-	  });
-	}
   };
   
   // 获取最大层级
