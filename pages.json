@@ -1,4 +1,4 @@
-	{
+{
 	"pages": [ 
 		{
 			"path": "pages/index/index",
@@ -23,15 +23,22 @@
 				"navigationBarBackgroundColor": "#78673c",
 				"navigationBarTextStyle": "white"
 			}
-		},
+		}
+	],
+	"subPackages": [
 		{
-			"path": "package-evolve/pages/evolve-index/index",
-			"style": {
-				"navigationBarTitleText": "进化",
-				"navigationBarBackgroundColor": "#78673c",
-				"navigationBarTextStyle": "white"
-			}
-		}			
+			"root": "package-evolve",
+			"pages": [
+				{
+					"path": "pages/evolve-index/index",
+					"style": {
+						"navigationBarTitleText": "进化",
+						"navigationBarBackgroundColor": "#78673c",
+						"navigationBarTextStyle": "white"
+					}
+				}
+			]
+		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

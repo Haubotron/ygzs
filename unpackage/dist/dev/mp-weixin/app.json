@@ -2,8 +2,15 @@
   "pages": [
     "pages/index/index",
     "pages/strategy/index",
-    "pages/my/index",
-    "package-evolve/pages/evolve-index/index"
+    "pages/my/index"
+  ],
+  "subPackages": [
+    {
+      "root": "package-evolve",
+      "pages": [
+        "pages/evolve-index/index"
+      ]
+    }
   ],
   "window": {
     "navigationBarTextStyle": "black",
