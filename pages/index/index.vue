@@ -21,7 +21,7 @@
 			<text class="card-text">野怪</text>
 			</view>
 		</view>
-
+ 
 		<!-- 卡片 -->
 		<view class="menu-card">
 			<view class="menu-card-item" v-for="item in menuCard" :key="item.id" @click="handleClick(item.path)">
