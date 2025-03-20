@@ -24,7 +24,8 @@ const _sfc_main = {
             c: item.id,
             d: common_vendor.o(($event) => handleClick(item.path), item.id)
           };
-        })
+        }),
+        f: common_assets._imports_1$1
       };
     };
   }

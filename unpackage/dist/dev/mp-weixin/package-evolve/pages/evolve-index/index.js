@@ -358,9 +358,46 @@ const _sfc_main = {
     };
     const calculateResources = () => {
       let total = 0;
+      const maxLevel2 = getMaxTreeLevel();
+      const requiredLevels = /* @__PURE__ */ new Map();
+      for (let level = maxLevel2; level >= 1; level--) {
+        const skillsInLevel = getSkillsByLevel(level);
+        if (level === maxLevel2) {
+          skillsInLevel.forEach((skill) => {
+            if (skill.currentLevel >= 1) {
+              requiredLevels.set(`${skill.name}-${skill.level}`, skill.currentLevel);
+            } else {
+              requiredLevels.set(`${skill.name}-${skill.level}`, 1);
+            }
+          });
+        }
+        skillsInLevel.forEach((skill) => {
+          const skillKey = `${skill.name}-${skill.level}`;
+          const requiredLevel = requiredLevels.get(skillKey) || 0;
+          if (skill.unlockNextLevelAt && level < maxLevel2) {
+            const hasHigherLevelDependents = currentTree.value.skills.some(
+              (s) => s.level > skill.level && requiredLevels.get(`${s.name}-${s.level}`) > 0 && s.dependencies.some((dep) => dep.name === skill.name && dep.level === skill.level)
+            );
+            if (hasHigherLevelDependents) {
+              const newRequiredLevel = Math.max(requiredLevel, skill.unlockNextLevelAt);
+              requiredLevels.set(skillKey, newRequiredLevel);
+            }
+          }
+          skill.dependencies.forEach((dep) => {
+            const depKey = `${dep.name}-${dep.level}`;
+            const currentDepRequiredLevel = requiredLevels.get(depKey) || 0;
+            if (requiredLevel > 0) {
+              const newDepRequiredLevel = Math.max(currentDepRequiredLevel, dep.requiredLevel);
+              requiredLevels.set(depKey, newDepRequiredLevel);
+            }
+          });
+        });
+      }
       currentTree.value.skills.forEach((skill) => {
-        if (skill.currentLevel < skill.maxLevel) {
-          for (let i = skill.currentLevel; i < skill.maxLevel; i++) {
+        const skillKey = `${skill.name}-${skill.level}`;
+        const requiredLevel = requiredLevels.get(skillKey) || 0;
+        if (requiredLevel > skill.currentLevel) {
+          for (let i = skill.currentLevel; i < requiredLevel; i++) {
             total += skill.resourcesPerLevel[i] || 0;
           }
         }
@@ -524,10 +561,10 @@ const _sfc_main = {
             f: level
           });
         }),
-        p: common_assets._imports_0$1,
-        q: common_assets._imports_0$1,
+        p: common_assets._imports_1$1,
+        q: common_assets._imports_2$1,
         r: common_vendor.o(calculateResources),
-        s: common_assets._imports_0$1,
+        s: common_assets._imports_3$1,
         t: common_vendor.o(calculateProgress),
         v: showResourceResult.value
       }, showResourceResult.value ? common_vendor.e({

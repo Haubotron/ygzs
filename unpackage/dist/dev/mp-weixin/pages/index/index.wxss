@@ -103,3 +103,27 @@ swiper-item.data-v-1cf27b2a {
   color: #78673c;
   margin-top: 10rpx;
 }
+.strongest-area-station.data-v-1cf27b2a {
+  width: 90%;
+  height: 200rpx;
+  margin-top: 30rpx;
+  background-color: #dbd2b4;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 16rpx rgba(0, 0, 0, 0.2);
+}
+.strongest-area-station-item.data-v-1cf27b2a {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.strongest-area-station-item .card-image.data-v-1cf27b2a {
+  width: 100rpx;
+  height: 100rpx;
+}
+.strongest-area-station-item .card-text.data-v-1cf27b2a {
+  font-size: 24rpx;
+  color: #78673c;
+  margin-top: 10rpx;
+}
