@@ -116,14 +116,15 @@ swiper-item.data-v-1cf27b2a {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 .strongest-area-station-item .card-image.data-v-1cf27b2a {
   width: 100rpx;
   height: 100rpx;
+  margin-left: 130rpx;
 }
 .strongest-area-station-item .card-text.data-v-1cf27b2a {
-  font-size: 24rpx;
+  font-size: 48rpx;
   color: #78673c;
   margin-top: 10rpx;
+  margin-left: 40rpx;
 }

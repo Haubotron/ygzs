@@ -9,17 +9,21 @@
 		<view class="close-button" @tap="close">×</view>
 	  </view>
   
-	  <!-- 科技树切换 -->
+	  <!-- 科技树切换 - 动态可滚动 -->
 	  <view class="tree-selector">
-		<view 
-		  v-for="(tree, key) in trees" 
-		  :key="key"
-		  class="tree-option"
-		  :class="{ active: currentTreeKey === key }"
-		  @tap="switchTree(key)"
-		>
-		  {{ tree.title }}
-		</view>
+		<scroll-view scroll-x class="tree-selector-scroll" show-scrollbar="false">
+		  <view class="tree-options-container">
+			<view 
+			  v-for="(tree, key) in trees" 
+			  :key="key"
+			  class="tree-option"
+			  :class="{ active: currentTreeKey === key }"
+			  @tap="switchTree(key)"
+			>
+			  {{ tree.title }}
+			</view>
+		  </view>
+		</scroll-view>
 	  </view>
   
 	  <!-- 资源显示和控制按钮 -->
@@ -173,7 +177,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, reactive, onMounted } from 'vue';
+  import { ref, computed, reactive } from 'vue';
   import { REGIONAL_DEVELOPMENT, ARCHER_ANT_HATCHING, GUARD_ANT_HATCHING } from './config.js';
   import './index.scss';
   
@@ -205,7 +209,7 @@
   const currentTreeKey = ref('regional');
   const currentTree = computed(() => trees[currentTreeKey.value]);
   
-  // 每个树的资源数量
+  // 每个树的资源数量 - 初始化为0
   const treeResources = reactive({
 	regional: 0,
 	archer: 0,

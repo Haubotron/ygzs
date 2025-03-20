@@ -109,16 +109,16 @@ swiper-item {
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-
     .card-image {
         width: 100rpx;
         height: 100rpx;
+        margin-left: 130rpx;
     }
 
     .card-text {
-        font-size: 24rpx;
+        font-size: 48rpx;
         color: #78673c;
         margin-top: 10rpx;
+        margin-left: 40rpx;
     }
 }
