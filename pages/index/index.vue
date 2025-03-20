@@ -30,6 +30,13 @@
 			</view>
 		</view>
 
+		<!-- 最强区域站 -->
+		<view class="strongest-area-station">
+			<view class="strongest-area-station-item">
+				<image src="@/static/images/home/regional-warfare.png" mode="widthFix" class="card-image"></image>
+				<text class="card-text">最强区域站</text>
+			</view>
+		</view>
 
 	</view>
 </template>

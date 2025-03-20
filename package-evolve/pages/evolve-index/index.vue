@@ -9,24 +9,28 @@
 		<view class="close-button" @tap="close">×</view>
 	  </view>
   
-	  <!-- 科技树切换 -->
+	  <!-- 科技树切换 - 动态可滚动 -->
 	  <view class="tree-selector">
-		<view 
-		  v-for="(tree, key) in trees" 
-		  :key="key"
-		  class="tree-option"
-		  :class="{ active: currentTreeKey === key }"
-		  @tap="switchTree(key)"
-		>
-		  {{ tree.title }}
-		</view>
+		<scroll-view scroll-x class="tree-selector-scroll" show-scrollbar="false">
+		  <view class="tree-options-container">
+			<view 
+			  v-for="(tree, key) in trees" 
+			  :key="key"
+			  class="tree-option"
+			  :class="{ active: currentTreeKey === key }"
+			  @tap="switchTree(key)"
+			>
+			  {{ tree.title }}
+			</view>
+		  </view>
+		</scroll-view>
 	  </view>
   
 	  <!-- 资源显示和控制按钮 -->
 	  <view class="resource-controls">
 		<view class="resource-display">
-		  <image class="resource-icon" src="@/static/None.png"></image>
-		  <input type="text" v-model="treeResources[currentTreeKey]" />
+		  <image class="resource-icon" src="../../static/fish-bone.png"></image>
+		  <input class="resource-input" type="number" v-model="treeResources[currentTreeKey]" />
 		</view>
 		<view class="control-buttons">
 		  <button 
@@ -127,11 +131,11 @@
 		<!-- 计算资源按钮 -->
 		<view class="action-buttons">
 		  <button class="action-button calculate-button" @tap="calculateResources">
-			<image class="button-icon" src="@/static/None.png"></image>
+			<image class="button-icon" src="../../static/computing.png"></image>
 			<text>计算所需鱼骨头</text>
 		  </button>
 		  <button class="action-button progress-button" @tap="calculateProgress">
-			<image class="button-icon" src="@/static/None.png"></image>
+			<image class="button-icon" src="../../static/views.png"></image>
 			<text>查看可升级进度</text>
 		  </button>
 		</view>
@@ -141,7 +145,7 @@
 		  <view class="result-title">未点亮科技所需资源</view>
 		  <view class="result-content">
 			<view class="resource-item">
-			  <image class="resource-icon" src="@/static/None.png"></image>
+			  <image class="resource-icon" src="../../static/fish-bone.png"></image>
 			  <view class="resource-value">{{ totalFishBones }} 鱼骨头</view>
 			</view>
 		  </view>
@@ -173,8 +177,9 @@
   </template>
   
   <script setup>
-  import { ref, computed, reactive, onMounted } from 'vue';
+  import { ref, computed, reactive } from 'vue';
   import { REGIONAL_DEVELOPMENT, ARCHER_ANT_HATCHING, GUARD_ANT_HATCHING } from './config.js';
+  import './index.scss';
   
   // 树数据 - 深拷贝以避免修改原始数据
   const cloneDeep = (obj) => JSON.parse(JSON.stringify(obj));
@@ -204,7 +209,7 @@
   const currentTreeKey = ref('regional');
   const currentTree = computed(() => trees[currentTreeKey.value]);
   
-  // 每个树的资源数量
+  // 每个树的资源数量 - 初始化为0
   const treeResources = reactive({
 	regional: 0,
 	archer: 0,
@@ -284,58 +289,18 @@
   const saveChanges = () => {
 	if (!editMode.value) return;
 	
-	// 计算需要消耗的资源
-	let totalCost = 0;
+	// Update initial state without consuming resources
+	initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+	// Update original state
+	originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
+	pendingChanges[currentTreeKey.value] = [];
+	editMode.value = false;
 	
-	currentTree.value.skills.forEach(skill => {
-	  const originalSkill = originalTrees[currentTreeKey.value].skills.find(s => s.name === skill.name && s.level === skill.level);
-	  if (originalSkill && skill.currentLevel > originalSkill.currentLevel) {
-		for (let i = originalSkill.currentLevel; i < skill.currentLevel; i++) {
-		  totalCost += skill.resourcesPerLevel[i];
-		}
-	  }
+	uni.showToast({
+	  title: '保存成功，初始设置不消耗鱼骨头',
+	  icon: 'none',
+	  duration: 2000
 	});
-	
-	// 检查资源是否足够
-	if (totalCost > treeResources[currentTreeKey.value]) {
-	  uni.showModal({
-		title: '资源不足',
-		content: `需要 ${totalCost} 鱼骨头，当前只有 ${treeResources[currentTreeKey.value]} 鱼骨头。是否继续保存？`,
-		success: (res) => {
-		  if (res.confirm) {
-			// 用户确认，扣除资源并保存
-			treeResources[currentTreeKey.value] -= totalCost;
-			// 更新初始状态
-			initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-			// 更新原始状态
-			originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-			pendingChanges[currentTreeKey.value] = [];
-			editMode.value = false;
-			
-			uni.showToast({
-			  title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-			  icon: 'none',
-			  duration: 2000
-			});
-		  }
-		}
-	  });
-	} else {
-	  // 资源足够，直接保存
-	  treeResources[currentTreeKey.value] -= totalCost;
-	  // 更新初始状态
-	  initialTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-	  // 更新原始状态
-	  originalTrees[currentTreeKey.value].skills = cloneDeep(trees[currentTreeKey.value].skills);
-	  pendingChanges[currentTreeKey.value] = [];
-	  editMode.value = false;
-	  
-	  uni.showToast({
-		title: `保存成功，消耗 ${totalCost} 鱼骨头`,
-		icon: 'none',
-		duration: 2000
-	  });
-	}
   };
   
   // 获取最大层级
@@ -651,14 +616,70 @@
 	});
   };
   
-  // 计算所需资源
+  // 计算所需资源 - 修改为只计算解锁所有层级所需的最小资源
   const calculateResources = () => {
 	let total = 0;
+	const maxLevel = getMaxTreeLevel();
+	const requiredLevels = new Map(); // 存储每个技能需要达到的最低等级
 	
-	// 计算所有未点亮科技所需的鱼骨头总和
+	// 从最高层级向下计算，确定每个技能需要达到的最低等级
+	for (let level = maxLevel; level >= 1; level--) {
+	  const skillsInLevel = getSkillsByLevel(level);
+	  
+	  // 对于最高层级，我们需要至少解锁它
+	  if (level === maxLevel) {
+		skillsInLevel.forEach(skill => {
+		  // 如果技能已经达到了所需等级，不需要额外资源
+		  if (skill.currentLevel >= 1) {
+			requiredLevels.set(`${skill.name}-${skill.level}`, skill.currentLevel);
+		  } else {
+			requiredLevels.set(`${skill.name}-${skill.level}`, 1);
+		  }
+		});
+	  }
+	  
+	  // 处理当前层级的技能
+	  skillsInLevel.forEach(skill => {
+		const skillKey = `${skill.name}-${skill.level}`;
+		const requiredLevel = requiredLevels.get(skillKey) || 0;
+		
+		// 如果这个技能需要达到一定等级才能解锁下一层
+		if (skill.unlockNextLevelAt && level < maxLevel) {
+		  // 检查是否有高层级技能依赖于此技能
+		  const hasHigherLevelDependents = currentTree.value.skills.some(s => 
+			s.level > skill.level && 
+			requiredLevels.get(`${s.name}-${s.level}`) > 0 &&
+			s.dependencies.some(dep => dep.name === skill.name && dep.level === skill.level)
+		  );
+		  
+		  if (hasHigherLevelDependents) {
+			// 如果有高层级依赖，需要达到解锁下一层的等级
+			const newRequiredLevel = Math.max(requiredLevel, skill.unlockNextLevelAt);
+			requiredLevels.set(skillKey, newRequiredLevel);
+		  }
+		}
+		
+		// 处理依赖关系
+		skill.dependencies.forEach(dep => {
+		  const depKey = `${dep.name}-${dep.level}`;
+		  const currentDepRequiredLevel = requiredLevels.get(depKey) || 0;
+		  
+		  // 如果当前技能需要被解锁，那么它的依赖也需要达到所需等级
+		  if (requiredLevel > 0) {
+			const newDepRequiredLevel = Math.max(currentDepRequiredLevel, dep.requiredLevel);
+			requiredLevels.set(depKey, newDepRequiredLevel);
+		  }
+		});
+	  });
+	}
+	
+	// 计算达到所需等级所需的资源
 	currentTree.value.skills.forEach(skill => {
-	  if (skill.currentLevel < skill.maxLevel) {
-		for (let i = skill.currentLevel; i < skill.maxLevel; i++) {
+	  const skillKey = `${skill.name}-${skill.level}`;
+	  const requiredLevel = requiredLevels.get(skillKey) || 0;
+	  
+	  if (requiredLevel > skill.currentLevel) {
+		for (let i = skill.currentLevel; i < requiredLevel; i++) {
 		  total += skill.resourcesPerLevel[i] || 0;
 		}
 	  }
@@ -777,414 +798,5 @@
 	uni.navigateBack();
   };
   </script>
-  
-  <style>
-  .tech-tree-container {
-	width: 100%;
-	height: 100vh;
-	background-color: #0a2a33;
-	background-image: radial-gradient(circle, rgba(0, 150, 180, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
-	color: #ffffff;
-	position: relative;
-  }
-  
-  .header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 20rpx 30rpx;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .back-button {
-	width: 60rpx;
-	height: 60rpx;
-	background-color: #333;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	border-radius: 8rpx;
-  }
-  
-  .back-icon {
-	width: 20rpx;
-	height: 20rpx;
-	border-top: 4rpx solid #fff;
-	border-left: 4rpx solid #fff;
-	transform: rotate(-45deg);
-  }
-  
-  .title {
-	font-size: 36rpx;
-	font-weight: bold;
-  }
-  
-  .close-button {
-	width: 60rpx;
-	height: 60rpx;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 40rpx;
-  }
-  
-  .tree-selector {
-	display: flex;
-	padding: 20rpx;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	overflow-x: auto;
-  }
-  
-  .tree-option {
-	padding: 10rpx 20rpx;
-	margin-right: 20rpx;
-	border-radius: 10rpx;
-	background-color: rgba(0, 0, 0, 0.3);
-	font-size: 28rpx;
-	white-space: nowrap;
-  }
-  
-  .tree-option.active {
-	background-color: rgba(0, 150, 180, 0.5);
-  }
-  
-  .resource-controls {
-	padding: 20rpx;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-	flex-wrap: wrap;
-  }
-  
-  .resource-display {
-	display: flex;
-	align-items: center;
-	background-color: rgba(0, 0, 0, 0.5);
-	padding: 10rpx 20rpx;
-	border-radius: 30rpx;
-	margin-bottom: 10rpx;
-  }
-  
-  .control-buttons {
-	display: flex;
-	gap: 10rpx;
-	flex-wrap: wrap;
-  }
-  
-  .control-button {
-	background-color: rgba(0, 0, 0, 0.5);
-	color: white;
-	font-size: 24rpx;
-	padding: 10rpx 20rpx;
-	border-radius: 30rpx;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	line-height: 1.5;
-	margin: 0;
-  }
-  
-  .active-mode {
-	background-color: #2196f3;
-  }
-  
-  .save-button {
-	background-color: #4caf50;
-  }
-  
-  .reset-button {
-	background-color: #d32f2f;
-  }
-  
-  .edit-mode-tip {
-	background-color: rgba(33, 150, 243, 0.2);
-	padding: 10rpx 20rpx;
-	font-size: 24rpx;
-	text-align: center;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .resource-icon {
-	width: 40rpx;
-	height: 40rpx;
-	margin-right: 10rpx;
-  }
-  
-  .tech-tree-content {
-	height: calc(100vh - 320rpx);
-	padding: 20rpx;
-  }
-  
-  .level-container {
-	margin-bottom: 40rpx;
-  }
-  
-  .level-label {
-	font-size: 28rpx;
-	color: rgba(255, 255, 255, 0.7);
-	margin-bottom: 20rpx;
-	text-align: center;
-  }
-  
-  .skills-row {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	gap: 20rpx;
-	margin-bottom: 20rpx;
-  }
-  
-  .skills-row.center-skill {
-	justify-content: center;
-  }
-  
-  .skill-item {
-	width: 320rpx;
-	background-color: rgba(0, 0, 0, 0.5);
-	border-radius: 20rpx;
-	padding: 20rpx;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	border: 2rpx solid rgba(255, 255, 255, 0.2);
-	position: relative;
-  }
-  
-  .skill-left {
-	margin-right: auto;
-  }
-  
-  .skill-right {
-	margin-left: auto;
-  }
-  
-  .skill-center {
-	margin: 0 auto;
-  }
-  
-  .skill-locked {
-	opacity: 0.7;
-	border: 2rpx solid rgba(255, 0, 0, 0.3);
-  }
-  
-  .skill-unlocked {
-	border: 2rpx solid rgba(255, 255, 0, 0.5);
-  }
-  
-  .skill-maxed {
-	border: 2rpx solid #4caf50;
-	background-color: rgba(0, 50, 0, 0.5);
-  }
-  
-  .skill-icon-container {
-	position: relative;
-  }
-  
-  .skill-icon {
-	width: 120rpx;
-	height: 120rpx;
-	border-radius: 60rpx;
-	margin-bottom: 10rpx;
-	background-color: #333;
-  }
-  
-  .max-badge {
-	position: absolute;
-	top: -10rpx;
-	right: -10rpx;
-	background-color: #4caf50;
-	color: white;
-	font-size: 20rpx;
-	padding: 4rpx 8rpx;
-	border-radius: 10rpx;
-  }
-  
-  .skill-name {
-	font-size: 28rpx;
-	margin-bottom: 10rpx;
-	text-align: center;
-	font-weight: bold;
-  }
-  
-  .skill-level {
-	font-size: 24rpx;
-	margin-bottom: 10rpx;
-	color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .skill-controls {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	margin-bottom: 15rpx;
-  }
-  
-  .btn-decrease, .btn-increase {
-	width: 60rpx;
-	height: 60rpx;
-	font-size: 32rpx;
-	line-height: 56rpx;
-	text-align: center;
-	background-color: rgba(0, 0, 0, 0.5);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 30rpx;
-	color: white;
-	padding: 0;
-  }
-  
-  .btn-max {
-	width: 100rpx;
-	height: 60rpx;
-	font-size: 24rpx;
-	line-height: 56rpx;
-	text-align: center;
-	background-color: rgba(0, 100, 0, 0.5);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	border-radius: 30rpx;
-	color: white;
-	padding: 0;
-  }
-  
-  button[disabled] {
-	opacity: 0.5;
-	background-color: #333;
-  }
-  
-  .skill-dependencies {
-	width: 100%;
-	margin-top: 10rpx;
-	margin-bottom: 10rpx;
-	font-size: 22rpx;
-	color: rgba(255, 255, 255, 0.7);
-  }
-  
-  .dependency-item {
-	margin-bottom: 5rpx;
-  }
-  
-  .skill-cost {
-	width: 100%;
-	font-size: 24rpx;
-	color: #ff9800;
-	text-align: center;
-	margin-top: 10rpx;
-  }
-  
-  .unlock-next-level {
-	width: 100%;
-	font-size: 22rpx;
-	color: #64b5f6;
-	text-align: center;
-	margin-top: 10rpx;
-  }
-  
-  .connection-line {
-	width: 2rpx;
-	height: 60rpx;
-	background-color: rgba(255, 255, 255, 0.3);
-	margin: 0 auto;
-	margin-bottom: 20rpx;
-  }
-  
-  .action-buttons {
-	margin-top: 60rpx;
-	display: flex;
-	justify-content: center;
-	gap: 20rpx;
-	flex-wrap: wrap;
-  }
-  
-  .action-button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border: none;
-	border-radius: 50rpx;
-	padding: 20rpx 40rpx;
-	font-size: 28rpx;
-	box-shadow: 0 4rpx 10rpx rgba(0, 0, 0, 0.3);
-  }
-  
-  .button-icon {
-	width: 40rpx;
-	height: 40rpx;
-	margin-right: 10rpx;
-  }
-  
-  .calculate-button {
-	background: linear-gradient(135deg, #00796b, #004d40);
-	color: white;
-  }
-  
-  .progress-button {
-	background: linear-gradient(135deg, #1976d2, #0d47a1);
-	color: white;
-  }
-  
-  .resource-result, .progress-result {
-	margin-top: 40rpx;
-	background-color: rgba(0, 0, 0, 0.5);
-	border-radius: 20rpx;
-	padding: 30rpx;
-	box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.5);
-  }
-  
-  .result-title {
-	font-size: 32rpx;
-	text-align: center;
-	margin-bottom: 20rpx;
-	color: #4caf50;
-  }
-  
-  .result-content {
-	display: flex;
-	justify-content: center;
-	margin-bottom: 20rpx;
-  }
-  
-  .resource-value {
-	font-size: 36rpx;
-	color: #ff9800;
-  }
-  
-  .remaining-resources {
-	text-align: center;
-	font-size: 28rpx;
-	color: #f44336;
-	margin-top: 20rpx;
-  }
-  
-  .remaining-resources.positive {
-	color: #4caf50;
-  }
-  
-  .progress-content {
-	display: flex;
-	flex-direction: column;
-	gap: 10rpx;
-  }
-  
-  .progress-item {
-	background-color: rgba(0, 0, 0, 0.3);
-	padding: 10rpx 20rpx;
-	border-radius: 10rpx;
-  }
-  
-  .progress-skill-name {
-	font-weight: bold;
-	font-size: 28rpx;
-	margin-bottom: 5rpx;
-  }
-  
-  .progress-detail {
-	font-size: 24rpx;
-	color: #8bc34a;
-  }
-  
-  .no-progress {
-	text-align: center;
-	font-size: 28rpx;
-	color: #f44336;
-  }
-  </style>
   
   
