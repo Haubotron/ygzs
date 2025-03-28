@@ -22,7 +22,7 @@
 			</view>
 		</view>
  
-		<!-- 功能区 -->
+		<!-- 功能卡片 -->
 		<view class="menu-card">
 			<view class="menu-card-item" v-for="item in menuCard" :key="item.id" @click="handleClick(item.path)">
 				<image :src="`/static/images/home/${item.image}`" mode="widthFix" class="card-image"></image>
